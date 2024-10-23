@@ -1,4 +1,3 @@
-canvas_user = {
-    "user": "am3923",
-    "password": "SAIBABA@two57"
-}
+CANVAS_API_URL = "https://rutgers.instructure.com"
+CANVAS_API_KEY = "6948~WRFHTfT4nx2u9yN9HeEKLnNzX33DrJWNRvvNTRvmT8r4PJB3XD94GTLtFQweT4fU"
+CANVAS_USER_ID = "593172"
