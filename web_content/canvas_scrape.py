@@ -58,24 +58,36 @@ if __name__ == '__main__':
             print('***', course.name,'->', course.id,'->', course.course_code)
             course_sf = ''.join([token[0].upper() for token in course.name.split() if token[0].isalpha()])
 
-            file_loc = os.path.join(file_dir_loc,course_sf)
-            print(file_loc)
+            course_file_loc = os.path.join(file_dir_loc,course_sf)
+            print(course_file_loc)
             # Make directory for the course
             try:
-                os.mkdir(file_loc)
+                os.mkdir(course_file_loc)
             except FileExistsError:
                 print("Directory for particular course already exists")
 
 
             files = course.get_files()
 
-            # First store the files at the location
-            with open(os.path.join(file_loc, 'files_list.txt'),'w') as f:
+            # First access the files at the location and get files list
+            try:
+                with open(os.path.join(course_file_loc, 'files_list.txt'),'w') as f:
+                    for file in files:
+                        f.write(f'{str(file)}\n')
+            except Exception as e:
+                print(f"Exception accessing files - {e}")
+
+            # Download the files 
+            try:
                 for file in files:
-                    f.write(f'{str(file)}\n')
+                    file_download_loc = os.path.join(course_file_loc, str(file))
+                    file.download(file_download_loc)
+            except Exception as e:
+                print(f"Exception accessing files - {e}")
 
 
     # Course details
+
 
     
 
