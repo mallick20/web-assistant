@@ -1,5 +1,12 @@
 *__pycache__/
 venv/
-*/files/
-*files/
 .env
+test*
+
+*config.py
+
+# Exclude files
+web_content/files/*
+
+# exception to the rule
+!web_content/files/.gitkeep 
