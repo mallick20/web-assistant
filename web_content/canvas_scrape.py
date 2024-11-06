@@ -2,15 +2,9 @@ import os
 import sys
 
 from pathlib import Path
-
 from canvasapi import Canvas
 
-# Canvas API URL
-API_URL = "https://rutgers.instructure.com"
-# Canvas API key
-API_KEY = "6948~WRFHTfT4nx2u9yN9HeEKLnNzX33DrJWNRvvNTRvmT8r4PJB3XD94GTLtFQweT4fU"
-# API_KEY = "6948~mxNHRC2fnZ7CBrwkak4XBNRfXZunX7kHUUrYhRRVN4GvyGGWwt7cfK8AT8CzcFFG"
-USER_ID = "593172"
+import config as config
 
 class CanvasScraper(Canvas):
     '''
@@ -28,11 +22,86 @@ class CanvasScraper(Canvas):
         self.user_id = user_id
         super().__init__(self.API_URL, self.API_KEY)
 
-    def get_user(self, user, id_type=None, **kwargs):
-        return super().get_user(user, id_type, **kwargs)
+    def get_user_details(self, id_type=None, **kwargs):
+        return super().get_user(self.user_id, id_type, **kwargs)
 
     def get_course_details(self, course_id = ''):
+        '''
+        Get course details of a particular course of the user - 
+            - Credits
+            - Grades
+        '''
+        user = self.get_user(self.user_id)
         pass
+
+    def get_user_course_details(self):
+        '''
+        Get all course details of the user - 
+            - Credits
+            - Grades
+        '''
+        user = self.get_user(self.user_id)
+        courses = user.get_courses()
+
+        courses_dict = {}
+        for course in courses:
+            courses_dict[course.name]= (course.id, course.course_code)
+
+        return courses_dict
+
+
+    def get_course_files(self, course_id = ''):
+        '''
+        Get the course files of a specific course into the required location
+        Current file types supported - 
+            pdf
+        '''
+        if course_id == '':
+            return
+        
+        course_obj = self.get_course(course_id)
+        course_sf = ''.join([token[0].upper() for token in course_obj.name.split() if token[0].isalpha()])
+
+        # Get the file location of the user
+        package_loc = os.path.dirname(__file__)
+        file_dir_loc = os.path.join(package_loc,'files')
+
+        course_file_loc = os.path.join(file_dir_loc,course_sf)
+        try:
+            os.mkdir(course_file_loc)
+        except FileExistsError:
+            print("Directory for particular course already exists")
+
+        files = course_obj.get_files()
+
+        # Download the files 
+        # try:
+        files_allowed = list(config.file_types.values())[0]
+        for file in files:
+            if files_allowed in str(file):
+                file_download_loc = os.path.join(course_file_loc, str(file))
+                file.download(file_download_loc)
+        # except Exception as e:
+        #     return f"Exception accessing files - {e}"
+        
+        return f"Files downloaded successfully"
+
+
+    def get_user_course_files(self):
+        '''
+        Get course files of all courses user is enrolled in into the required location
+        Current file types supported - 
+            pdf
+        '''
+        course_dict = self.get_user_course_details()
+        # Get the courses for the user
+        package_loc = os.path.dirname(__file__)
+        file_dir_loc = os.path.join(package_loc,'files')
+
+        for key, value in course_dict.items():
+            print(f'Getting course files for course - {value[0]}')
+            ret = self.get_course_files(value[0])
+            print(f'{value[0]} - {ret}')
 
 
 
@@ -40,50 +109,17 @@ class CanvasScraper(Canvas):
 
 if __name__ == '__main__':
 
-    canvas_obj = CanvasScraper(api_url=API_URL, api_key=API_KEY, user_id=USER_ID)
 
-    user = canvas_obj.get_user(USER_ID)
+    canvas_obj = CanvasScraper(api_url=config.CANVAS_API_URL, 
+                               api_key=config.CANVAS_API_KEY, 
+                               user_id=config.CANVAS_USER_ID)
+
+    user = canvas_obj.get_user_details()
     print('User',user)
 
-    # Get the courses for the user
-    package_loc = os.path.dirname(__file__)
-    file_dir_loc = os.path.join(package_loc,'files')
+    print(canvas_obj.get_user_course_details())
 
-    try:
-        os.mkdir(file_dir_loc)
-    except FileExistsError:
-        print("Directory for course files already exists")
-    courses = user.get_courses()
-    for course in courses:
-            print('***', course.name,'->', course.id,'->', course.course_code)
-            course_sf = ''.join([token[0].upper() for token in course.name.split() if token[0].isalpha()])
-
-            course_file_loc = os.path.join(file_dir_loc,course_sf)
-            print(course_file_loc)
-            # Make directory for the course
-            try:
-                os.mkdir(course_file_loc)
-            except FileExistsError:
-                print("Directory for particular course already exists")
-
-
-            files = course.get_files()
-
-            # First access the files at the location and get files list
-            try:
-                with open(os.path.join(course_file_loc, 'files_list.txt'),'w') as f:
-                    for file in files:
-                        f.write(f'{str(file)}\n')
-            except Exception as e:
-                print(f"Exception accessing files - {e}")
-
-            # Download the files 
-            try:
-                for file in files:
-                    file_download_loc = os.path.join(course_file_loc, str(file))
-                    file.download(file_download_loc)
-            except Exception as e:
-                print(f"Exception accessing files - {e}")
+    canvas_obj.get_user_course_files()
 
 
     # Course details

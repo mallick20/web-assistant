@@ -4,8 +4,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from web_content.user_config import canvas_user
-from .. import sample
+from web_content.config import canvas_user
 
 headers = {
     'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
