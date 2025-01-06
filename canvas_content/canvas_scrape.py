@@ -99,9 +99,13 @@ class CanvasScraper(Canvas):
         file_dir_loc = os.path.join(package_loc,'files')
 
         for key, value in course_dict.items():
-            print(f'Getting course files for course - {value[0]}')
-            ret = self.get_course_files(value[0])
-            print(f'{value[0]} - {ret}')
+            print(f'Getting course files for course - {key}')
+            try:
+                ret = self.get_course_files(value[0])
+                print(f'{key} - {ret}')
+            except Exception as e:
+                print(f"{key} - Exception raised - {e}")
+            
 
 
 

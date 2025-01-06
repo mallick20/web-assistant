@@ -6,7 +6,7 @@ test*
 *config.py
 
 # Exclude files
-web_content/files/*
+canvas_content/files/*
 
 # exception to the rule
-!web_content/files/.gitkeep 
+!canvas_content/files/.gitkeep 

@@ -1,1 +1,1 @@
-import web_content
+import canvas_content

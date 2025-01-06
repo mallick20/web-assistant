@@ -1,7 +1,7 @@
 import os
 import sys
 
-from web_content import web_login
+from canvas_content import web_login
 
 '''
 This file here retrieves the content of the web sessions
